@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel de Palavras — Grupo de Louvor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Petrona:ital,wght@0,400;0,500;0,600;1,500&family=Manrope:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink: #14181f;
+    --panel: #1c2330;
+    --panel-alt: #262f40;
+    --paper: #f3efe6;
+    --paper-dim: #b9b6ae;
+    --gold: #d9a441;
+    --gold-dim: #8a713a;
+    --sage: #7fa98b;
+    --line: #333d4f;
+    --radius: 14px;
+  }
+
+  * { box-sizing: border-box; }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+  }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--ink);
+    color: var(--paper);
+    font-family: 'Manrope', sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 28px 16px 80px;
+  }
+
+  header.top {
+    padding: 4px 2px 22px;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 20px;
+  }
+
+  .eyebrow {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin: 0 0 8px;
+  }
+
+  h1 {
+    font-family: 'Petrona', serif;
+    font-weight: 600;
+    font-size: 28px;
+    line-height: 1.15;
+    margin: 0 0 6px;
+    color: var(--paper);
+  }
+
+  .sub {
+    font-size: 14px;
+    color: var(--paper-dim);
+    margin: 0 0 18px;
+  }
+
+  .progress-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 4px;
+  }
+
+  .progress-track {
+    flex: 1;
+    height: 6px;
+    background: var(--panel);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gold), var(--sage));
+    border-radius: 99px;
+    transition: width 0.4s ease;
+    width: 0%;
+  }
+
+  .progress-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    color: var(--paper-dim);
+    white-space: nowrap;
+  }
+
+  .toolbar {
+    display: flex;
+    gap: 8px;
+    margin-top: 16px;
+  }
+
+  .btn-ghost {
+    font-family: 'Manrope', sans-serif;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--paper-dim);
+    background: transparent;
+    border: 1px solid var(--line);
+    border-radius: 99px;
+    padding: 7px 14px;
+    cursor: pointer;
+  }
+  .btn-ghost:hover { color: var(--paper); border-color: var(--gold-dim); }
+  .btn-ghost:focus-visible, button:focus-visible, textarea:focus-visible {
+    outline: 2px solid var(--gold);
+    outline-offset: 2px;
+  }
+
+  .weeks { display: flex; flex-direction: column; gap: 10px; }
+
+  .card {
+    background: var(--panel);
+    border-radius: var(--radius);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--line);
+    overflow: hidden;
+    transition: border-color 0.2s ease;
+  }
+  .card.is-current { border-left-color: var(--gold); }
+  .card.is-done { border-left-color: var(--sage); }
+
+  .card-head {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 14px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    color: inherit;
+    font: inherit;
+  }
+
+  .num {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    color: var(--gold-dim);
+    width: 26px;
+    flex-shrink: 0;
+  }
+  .is-current .num, .is-done .num { color: var(--gold); }
+
+  .head-text { flex: 1; min-width: 0; }
+
+  .date-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 2px;
+  }
+
+  .date {
+    font-family: 'Space Mono', monospace;
+    font-size: 11.5px;
+    color: var(--paper-dim);
+  }
+
+  .tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 1px 7px;
+    border-radius: 99px;
+    background: var(--gold);
+    color: #1a1408;
+    font-weight: 700;
+  }
+  .tag.done { background: var(--sage); color: #0e1a13; }
+
+  .title {
+    font-family: 'Petrona', serif;
+    font-size: 16.5px;
+    font-weight: 600;
+    color: var(--paper);
+    line-height: 1.3;
+  }
+
+  .chev {
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    color: var(--paper-dim);
+    transition: transform 0.25s ease;
+  }
+  .card.open .chev { transform: rotate(180deg); color: var(--gold); }
+
+  .card-body {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.3s ease;
+  }
+  .card.open .card-body { grid-template-rows: 1fr; }
+  .card-body-inner { overflow: hidden; }
+
+  .content { padding: 2px 16px 18px; }
+
+  .block { margin-bottom: 14px; }
+
+  .label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin: 0 0 5px;
+  }
+
+  .idea {
+    font-size: 14.5px;
+    line-height: 1.55;
+    color: var(--paper);
+  }
+
+  .keywords { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip {
+    font-size: 11.5px;
+    padding: 4px 10px;
+    border-radius: 99px;
+    background: var(--panel-alt);
+    color: var(--paper-dim);
+    border: 1px solid var(--line);
+  }
+
+  .esboco-item {
+    font-size: 14px;
+    line-height: 1.55;
+    margin-bottom: 8px;
+    padding-left: 2px;
+    color: var(--paper);
+  }
+  .esboco-item b { color: var(--gold); font-weight: 700; }
+
+  .bonus {
+    font-size: 13px;
+    line-height: 1.55;
+    color: var(--paper-dim);
+    background: var(--panel-alt);
+    border-radius: 10px;
+    padding: 10px 12px;
+    border: 1px dashed var(--line);
+  }
+
+  .pergunta-box {
+    background: var(--panel-alt);
+    border-radius: 10px;
+    padding: 12px 13px;
+  }
+  .pergunta-txt {
+    font-size: 14.5px;
+    font-style: italic;
+    color: var(--paper);
+    margin: 0 0 4px;
+  }
+  .pergunta-note {
+    font-size: 11px;
+    color: var(--paper-dim);
+    margin: 0 0 10px;
+  }
+  .branch { font-size: 13.5px; line-height: 1.5; margin-top: 8px; color: var(--paper); }
+  .branch b { color: var(--sage); }
+
+  .verse-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11.5px;
+    color: var(--gold);
+    background: transparent;
+    border: 1px solid var(--gold-dim);
+    border-radius: 99px;
+    padding: 6px 12px;
+    cursor: pointer;
+  }
+  .verse-toggle:hover { background: rgba(217,164,65,0.1); }
+
+  .verse-panel {
+    margin-top: 10px;
+    padding: 12px 13px;
+    background: var(--panel-alt);
+    border-left: 2px solid var(--gold);
+    border-radius: 6px;
+    display: none;
+  }
+  .verse-panel.show { display: block; }
+  .verse-ref {
+    font-family: 'Petrona', serif;
+    font-style: italic;
+    font-size: 14.5px;
+    color: var(--paper);
+    margin: 0 0 6px;
+  }
+  .verse-note {
+    font-size: 12px;
+    color: var(--paper-dim);
+    line-height: 1.5;
+    margin: 0;
+  }
+  .verse-disclaimer {
+    font-size: 10.5px;
+    color: var(--paper-dim);
+    margin-top: 6px;
+    opacity: 0.75;
+  }
+  textarea.verse-text {
+    margin-top: 10px;
+    min-height: 44px;
+    font-style: italic;
+  }
+  .verse-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 8px 0 2px;
+  }
+  .verse-link {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--gold);
+    text-decoration: none;
+    border-bottom: 1px solid var(--gold-dim);
+    padding-bottom: 1px;
+  }
+  .verse-link:hover { border-bottom-color: var(--gold); }
+
+  .registro-wrap { margin-top: 4px; }
+  textarea.registro {
+    width: 100%;
+    min-height: 60px;
+    resize: vertical;
+    background: var(--ink);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    color: var(--paper);
+    font-family: 'Manrope', sans-serif;
+    font-size: 13.5px;
+    padding: 9px 10px;
+    line-height: 1.5;
+  }
+  textarea.registro::placeholder { color: var(--paper-dim); opacity: 0.6; }
+
+  .done-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .done-row label {
+    font-size: 13px;
+    color: var(--paper-dim);
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    cursor: pointer;
+  }
+  .done-row input[type="checkbox"] {
+    width: 16px; height: 16px;
+    accent-color: var(--sage);
+    cursor: pointer;
+  }
+  .save-hint {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--sage);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  .save-hint.show { opacity: 1; }
+
+  footer.foot {
+    margin-top: 28px;
+    padding-top: 16px;
+    border-top: 1px solid var(--line);
+    text-align: center;
+  }
+  .foot button {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--paper-dim);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <p class="eyebrow">Grupo de Louvor · 20h</p>
+    <h1>Painel de Palavras</h1>
+    <p class="sub">Agosto a Dezembro de 2026 · 19 encontros de segunda-feira</p>
+    <div class="progress-row">
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+      <span class="progress-label" id="progressLabel">0/19</span>
+    </div>
+    <div class="toolbar">
+      <button class="btn-ghost" id="expandAllBtn" type="button">Abrir tudo</button>
+      <button class="btn-ghost" id="collapseAllBtn" type="button">Fechar tudo</button>
+    </div>
+  </header>
+
+  <div class="weeks" id="weeksContainer"></div>
+
+  <footer class="foot">
+    <button id="resetBtn" type="button">Limpar meus registros e marcações</button>
+  </footer>
+
+</div>
+
+<script>
+const WEEKS = [
+  { n:1, iso:"2026-08-24", date:"24/08", title:"Somos exemplo, não pedra de tropeço",
+    base:"1 Coríntios 8:9-13 · 1 Timóteo 4:12",
+    refs:[{l:"1 Coríntios 8",u:"https://www.bibliaonline.com.br/acf/1co/8"},{l:"1 Timóteo 4",u:"https://www.bibliaonline.com.br/acf/1tm/4"}],
+    ideia:"Quem está na frente influencia quem está do lado, pra bem ou pra mal — mesmo sem querer.",
+    keywords:["exemplo","influência","tropeço","responsabilidade"],
+    esboco:[
+      {l:"Gancho", t:"alguém aqui já copiou um jeito de tocar, cantar ou reagir só de ver outra pessoa da equipe fazer?"},
+      {l:"Verdade", t:"Paulo diz que nossa liberdade não pode virar tropeço pro irmão mais fraco."},
+      {l:"Aplicação", t:"antes de reclamar ou brincar pesado no ensaio, pergunte — isso edifica ou derruba alguém?"}
+    ],
+    pergunta:"que atitude minha, boa ou ruim, já influenciou alguém aqui sem eu perceber?",
+    perguntaNote:"não precisa responder em voz alta",
+    branches:[{l:"Uma verdade pra guardar", t:"seja qual for a resposta, hoje é um bom dia pra decidir — quero ser lembrado como quem edificou, não como quem fez alguém tropeçar."}]
+  },
+  { n:2, iso:"2026-08-31", date:"31/08", title:"Deus nos usa como porta-voz",
+    base:"Êxodo 4:10-12 · Jeremias 1:6-9",
+    refs:[{l:"Êxodo 4",u:"https://www.bibliaonline.com.br/acf/ex/4"},{l:"Jeremias 1",u:"https://www.bibliaonline.com.br/acf/jr/1"}],
+    ideia:"Moisés e Jeremias se acharam despreparados demais — e foi exatamente quem Deus escolheu.",
+    keywords:["chamado","insegurança","voz","obediência"],
+    esboco:[
+      {l:"Gancho", t:"quem aqui já pensou \"minha voz/minha vida não tem nada demais pra Deus usar\"?"},
+      {l:"Verdade", t:"Deus não escolhe pela habilidade, escolhe e depois capacita."},
+      {l:"Aplicação", t:"quando você canta ou toca, não é só música — é Deus falando através de você pra alguém na plateia."}
+    ],
+    pergunta:"o que te trava mais quando você pensa em ser usado por Deus: medo ou insegurança?",
+    perguntaNote:"não precisa responder em voz alta",
+    branches:[
+      {l:"Se for medo", t:"Deus não prometeu tirar o medo, prometeu ir junto — \"não temas, porque eu sou contigo\" (Isaías 41:10). A coragem de Josué não veio de ele não sentir medo, veio de saber quem estava do lado dele."},
+      {l:"Se for insegurança", t:"Deus não te chamou pela sua capacidade, chamou porque escolheu você — como fez com Moisés e Jeremias, que também se acharam pequenos demais. A capacitação vem depois da obediência, não antes."}
+    ]
+  },
+  { n:3, iso:"2026-09-07", date:"07/09", title:"Sejam fortes e corajosos",
+    base:"Josué 1:6-9",
+    refs:[{l:"Josué 1",u:"https://www.bibliaonline.com.br/acf/js/1"}],
+    ideia:"Coragem bíblica não é ausência de medo, é obedecer apesar dele.",
+    keywords:["coragem","medo","obediência","presença de Deus"],
+    esboco:[
+      {l:"Gancho", t:"o que dá mais medo — errar uma nota ao vivo ou errar uma decisão importante da vida?"},
+      {l:"Verdade", t:"Deus repete 3x \"sê forte e corajoso\" pra Josué porque sabia que o medo ia bater."},
+      {l:"Aplicação", t:"a coragem que Deus pede não vem da nossa capacidade, vem de saber que Ele está junto."}
+    ],
+    pergunta:"qual área da sua vida precisa de mais coragem agora?",
+    perguntaNote:"não precisa responder em voz alta",
+    branches:[{l:"Antes de continuar o ensaio", t:"seja relacionamento, decisão, estudo, confronto ou ministério, a mesma promessa feita a Josué vale pra você — o Senhor teu Deus é contigo por onde quer que andares."}]
+  },
+  { n:4, iso:"2026-09-14", date:"14/09", title:"A língua: o órgão mais perigoso do corpo",
+    base:"Tiago 3:5-10",
+    refs:[{l:"Tiago 3",u:"https://www.bibliaonline.com.br/acf/tg/3"}],
+    ideia:"Uma faísca pequena incendeia uma floresta — nossas palavras têm esse poder.",
+    keywords:["palavras","fofoca","domínio próprio","edificação"],
+    esboco:[
+      {l:"Gancho", t:"já viu um clima de grupo mudar completamente por causa de um comentário?"},
+      {l:"Verdade", t:"Tiago diz que a língua é pequena, mas capaz de destruir o que levou meses pra construir."},
+      {l:"Aplicação", t:"numa equipe, comentário nas costas, piadinha e reclamação mal colocada fazem mais estrago que desafinar uma nota."}
+    ],
+    bonus:"Se sobrar tempo: Efésios 4:29 dá o outro lado da mesma moeda — não é só sobre não destruir com a fala, é sobre usar a fala pra edificar de propósito. A mesma boca que pode ferir é a que pode encorajar alguém a continuar.",
+    pergunta:"existe algo que você tem falado sobre alguém que precisaria falar direto com a pessoa?",
+    perguntaNote:"não precisa responder em voz alta",
+    branches:[
+      {l:"Se sim", t:"Mateus 18 é claro — o primeiro passo é ir direto à pessoa, não contar pra terceiros. Pode ser incômodo, mas é o caminho que evita que a mágoa cresça e contamine o grupo."},
+      {l:"Se não", t:"ótimo — continue vigiando isso, porque a fofoca costuma começar pequena e parecendo inofensiva (\"só um desabafo\")."}
+    ]
+  },
+  { n:5, iso:"2026-09-21", date:"21/09", title:"Adoração é estilo de vida, não só palco",
+    base:"Romanos 12:1-2",
+    refs:[{l:"Romanos 12",u:"https://www.bibliaonline.com.br/acf/rm/12"}],
+    ideia:"Adorar de segunda a sábado é o que dá autenticidade ao domingo.",
+    keywords:["adoração","autenticidade","vida diária","culto racional"],
+    esboco:[
+      {l:"Gancho", t:"dá pra levantar as mãos no culto e viver de um jeito totalmente diferente na segunda?"},
+      {l:"Verdade", t:"Paulo chama de \"culto racional\" oferecer o corpo inteiro — não só a voz por 20 minutos."},
+      {l:"Aplicação", t:"sua adoração real aparece em como você trata as pessoas quando o microfone está desligado."}
+    ],
+    pergunta:"onde sua vida fora do palco mais contradiz o que você canta no palco?",
+    perguntaNote:"não precisa responder em voz alta",
+    branches:[{l:"Pra pensar em casa", t:"não precisa ter uma resposta perfeita agora — só o fato de parar pra pensar nisso já é um passo de honestidade diante de Deus. Ele não quer performance, quer coerência."}]
+  },
+  { n:6, iso:"2026-09-28", date:"28/09", title:"Coração antes do talento",
+    base:"1 Samuel 16:7",
+    refs:[{l:"1 Samuel 16",u:"https://www.bibliaonline.com.br/acf/1sm/16"}],
+    ideia:"Deus olha o coração antes de olhar a técnica.",
+    keywords:["coração","técnica","motivação","intimidade"],
+    esboco:[
+      {l:"Gancho", t:"é possível tocar/cantar perfeito e estar longe de Deus ao mesmo tempo?"},
+      {l:"Verdade", t:"Deus rejeitou os irmãos \"com aparência\" de Davi e escolheu quem tinha coração de pastor."},
+      {l:"Aplicação", t:"treinar o talento é importante, mas nunca pode substituir cuidar do coração."}
+    ],
+    pergunta:"você tem investido mais tempo ensaiando o instrumento ou ensaiando a intimidade com Deus?",
+    perguntaNote:"não precisa responder em voz alta",
+    branches:[
+      {l:"Se for o instrumento", t:"não tem problema em ser tecnicamente dedicado — só cuidado pra isso não virar a fonte da sua identidade no lugar de Deus."},
+      {l:"Se for nenhum dos dois", t:"às vezes é essa a resposta real — essa semana pode ser o ponto de virada: escolha um dia pra separar 15 minutos só com Deus, sem ser pra preparar o ensaio."}
+    ]
+  },
+  { n:7, iso:"2026-10-05", date:"05/10", title:"Servos, não estrelas",
+    base:"Filipenses 2:3-8",
+    refs:[{l:"Filipenses 2",u:"https://www.bibliaonline.com.br/acf/fp/2"}],
+    ideia:"Jesus, sendo o maior, se fez servo — o padrão pra quem está no palco.",
+    keywords:["humildade","serviço","holofote","exemplo de Cristo"],
+    esboco:[
+      {l:"Gancho", t:"o que passa mais rápido — a vontade de aparecer ou a vontade de servir?"},
+      {l:"Verdade", t:"Jesus tinha todo o direito de ser servido e escolheu lavar pés."},
+      {l:"Aplicação", t:"estar no palco é uma posição de serviço à igreja, não de exposição pessoal."}
+    ],
+    pergunta:"você reagiria bem se te pedissem pra sair do vocal principal e ir pro backing por um tempo?",
+    perguntaNote:"não precisa responder em voz alta",
+    branches:[
+      {l:"Se sim", t:"isso é um sinal bom de que seu coração está mais no serviço do que na posição."},
+      {l:"Se não", t:"tudo bem admitir — vale a pena orar justamente sobre isso: pedir a Deus pra esvaziar o que ainda tem de \"preciso aparecer\" e trocar por \"quero servir\"."}
+    ]
+  },
+  { n:8, iso:"2026-10-12", date:"12/10", title:"Unidade: uma equipe, uma voz",
+    base:"Salmo 133:1 · Efésios 4:1-3",
+    refs:[{l:"Salmos 133",u:"https://www.bibliaonline.com.br/acf/sl/133"},{l:"Efésios 4",u:"https://www.bibliaonline.com.br/acf/ef/4"}],
+    ideia:"Um grupo desunido soa desafinado mesmo tocando as notas certas.",
+    keywords:["unidade","comunhão","paz","equipe"],
+    esboco:[
+      {l:"Gancho", t:"já sentiu um ensaio \"tecnicamente certo\" mas com clima pesado?"},
+      {l:"Verdade", t:"Deus ordena bênção onde há união — o Salmo compara a algo que desce e alcança todo mundo."},
+      {l:"Aplicação", t:"resolver o desentendimento antes do ensaio importa mais que ensaiar a música mais uma vez."}
+    ],
+    pergunta:"existe alguma mágoa não resolvida dentro do time que está pesando o clima?",
+    perguntaNote:"não precisa responder em voz alta",
+    branches:[
+      {l:"Se sim", t:"Efésios 4:26 diz pra não deixar o sol se pôr sobre a nossa ira — quanto mais cedo for conversado, menor o estrago. Procure a pessoa ainda essa semana."},
+      {l:"Se não", t:"siga vigiando — o Salmo 133 mostra que a unidade é algo pra ser cuidado continuamente, não uma conquista única."}
+    ]
+  },
+  { n:9, iso:"2026-10-19", date:"19/10", title:"Fidelidade nos pequenos detalhes",
+    base:"Lucas 16:10",
+    refs:[{l:"Lucas 16",u:"https://www.bibliaonline.com.br/acf/lc/16"}],
+    ideia:"Quem é fiel no pouco — chegar no horário, decorar a letra, cuidar do equipamento — é fiel no muito.",
+    keywords:["fidelidade","pontualidade","compromisso","excelência"],
+    esboco:[
+      {l:"Gancho", t:"o que fala mais alto sobre o caráter de alguém: um solo bonito ou chegar atrasado toda semana?"},
+      {l:"Verdade", t:"Jesus liga diretamente o pequeno ao grande — não existe atalho pra confiança."},
+      {l:"Aplicação", t:"os \"detalhes chatos\" do ministério (horário, ensaio individual, cuidado com o material) são também adoração."}
+    ],
+    pergunta:"em que detalhe pequeno você sabe que tem sido inconstante?",
+    perguntaNote:"não precisa responder em voz alta",
+    branches:[{l:"Escolha só isso", t:"seja horário, ensaio individual ou cuidado com o equipamento, escolha um só pra trabalhar essa semana. Fidelidade se constrói um detalhe de cada vez, não todos ao mesmo tempo."}]
+  },
+  { n:10, iso:"2026-10-26", date:"26/10", title:"Testemunho também nas redes sociais",
+    base:"Mateus 5:14-16",
+    refs:[{l:"Mateus 5",u:"https://www.bibliaonline.com.br/acf/mt/5"}],
+    ideia:"O que você posta fala tão alto quanto o que você canta no domingo.",
+    keywords:["testemunho","redes sociais","coerência","luz"],
+    esboco:[
+      {l:"Gancho", t:"alguém de fora que só te seguisse no Instagram concluiria que você é do louvor?"},
+      {l:"Verdade", t:"Jesus fala de luz que não se esconde — nossa vida pública também é palco."},
+      {l:"Aplicação", t:"pausa antes de postar — isso reflete quem eu digo que sou no domingo?"}
+    ],
+    pergunta:"existe alguma coisa no seu perfil hoje que te deixaria sem graça se um visitante da igreja visse?",
+    perguntaNote:"não precisa responder em voz alta",
+    branches:[
+      {l:"Se sim", t:"não é sobre culpa, é sobre coerência — dá pra rever e ajustar ainda hoje."},
+      {l:"Se não", t:"que bom! Continue sendo luz também online, isso importa mais do que parece."}
+    ]
+  },
+  { n:11, iso:"2026-11-02", date:"02/11", title:"Recebendo correção com humildade",
+    base:"Provérbios 15:31-32 · Hebreus 12:11",
+    refs:[{l:"Provérbios 15",u:"https://www.bibliaonline.com.br/acf/pv/15"},{l:"Hebreus 12",u:"https://www.bibliaonline.com.br/acf/hb/12"}],
+    ideia:"Saber ouvir uma correção sem ficar na defensiva é sinal de maturidade, não de fraqueza.",
+    keywords:["correção","humildade","crescimento","defensiva"],
+    esboco:[
+      {l:"Gancho", t:"o que dá mais vontade quando alguém corrige seu jeito de tocar ou cantar no ensaio — melhorar ou se justificar?"},
+      {l:"Verdade", t:"Provérbios diz que quem rejeita a correção despreza a própria alma, e quem ouve ganha entendimento."},
+      {l:"Aplicação", t:"a próxima correção que você receber no ensaio é uma chance de crescer, não um ataque pessoal."}
+    ],
+    pergunta:"quando alguém te corrige, sua primeira reação costuma ser se defender ou realmente ouvir?",
+    perguntaNote:"não precisa responder em voz alta",
+    branches:[
+      {l:"Se for se defender", t:"é normal sentir isso na hora — mas a reação de defesa geralmente esconde orgulho ferido, não injustiça real. Provérbios liga diretamente humildade a sabedoria pra crescer."},
+      {l:"Se for realmente ouvir", t:"ótimo — continue cultivando isso, é uma das marcas mais raras (e valiosas) de quem quer crescer de verdade."}
+    ]
+  },
+  { n:12, iso:"2026-11-09", date:"09/11", title:"Pureza de coração",
+    base:"Salmo 51:10 · Mateus 5:8",
+    refs:[{l:"Salmos 51",u:"https://www.bibliaonline.com.br/acf/sl/51"},{l:"Mateus 5",u:"https://www.bibliaonline.com.br/acf/mt/5"}],
+    ideia:"Deus não pede performance impecável, pede coração limpo diante Dele.",
+    keywords:["pureza","arrependimento","santidade","intimidade"],
+    esboco:[
+      {l:"Gancho", t:"dá pra levantar a mão pra Deus e esconder algo do mesmo Deus ao mesmo tempo?"},
+      {l:"Verdade", t:"Davi, depois de errar feio, não pede desempenho, pede coração puro."},
+      {l:"Aplicação", t:"santidade não é perfeição, é honestidade constante com Deus sobre onde você está falhando."}
+    ],
+    pergunta:"tem algo que você vem escondendo de Deus (e de si mesmo) há um tempo?",
+    perguntaNote:"não precisa responder em voz alta",
+    branches:[
+      {l:"Se sim", t:"a boa notícia do Salmo 51 é que Davi escreveu isso depois de errar feio, e Deus não o descartou — Ele restaura quem se aproxima com sinceridade, não quem finge que está tudo bem."},
+      {l:"Se não", t:"ainda assim, faça da oração de Davi um hábito — pedir um coração puro antes que algo precise ser escondido."}
+    ]
+  },
+  { n:13, iso:"2026-11-16", date:"16/11", title:"Gratidão em todo tempo",
+    base:"1 Tessalonicenses 5:16-18",
+    refs:[{l:"1 Tessalonicenses 5",u:"https://www.bibliaonline.com.br/acf/1ts/5"}],
+    ideia:"Gratidão não depende de circunstância perfeita, é escolha diária.",
+    keywords:["gratidão","contentamento","vontade de Deus"],
+    esboco:[
+      {l:"Gancho", t:"o que puxa mais sua atenção — o que falta na sua vida ou o que Deus já deu?"},
+      {l:"Verdade", t:"Paulo escreve isso preso, não confortável — gratidão é decisão, não sentimento."},
+      {l:"Aplicação", t:"agradecer pelo ministério, pela equipe, pelo dom, muda o jeito que você serve."}
+    ],
+    pergunta:"qual coisa simples do ministério você tem deixado de agradecer?",
+    perguntaNote:"não precisa responder em voz alta",
+    branches:[{l:"Pra levar pra semana", t:"pode ser o instrumento, a equipe, a oportunidade de servir ou até os erros que te ensinaram algo — 1 Tessalonicenses 5:18 pede gratidão \"em tudo\", não só no que já está resolvido."}]
+  },
+  { n:14, iso:"2026-11-23", date:"23/11", title:"Perdão dentro da equipe",
+    base:"Efésios 4:31-32",
+    refs:[{l:"Efésios 4",u:"https://www.bibliaonline.com.br/acf/ef/4"}],
+    ideia:"Mágoa guardada entre membros da equipe azeda o ambiente e a adoração.",
+    keywords:["perdão","mágoa","reconciliação","graça"],
+    esboco:[
+      {l:"Gancho", t:"dá pra cantar \"Tua graça me basta\" e não perdoar quem está do seu lado no palco?"},
+      {l:"Verdade", t:"Paulo pede que perdoemos como fomos perdoados — sem condição."},
+      {l:"Aplicação", t:"resolver rápido evita que uma mágoa pequena vire uma rachadura grande no time."}
+    ],
+    pergunta:"existe alguém aqui com quem você precisa se acertar?",
+    perguntaNote:"não precisa responder em voz alta",
+    branches:[
+      {l:"Se sim", t:"Efésios 4:32 pede que perdoemos como fomos perdoados — sem esperar o outro dar o primeiro passo. Procure essa pessoa ainda essa semana, nem que seja só uma mensagem."},
+      {l:"Se não", t:"ótimo — continue sendo o tipo de pessoa que resolve rápido, isso protege o clima do time."}
+    ]
+  },
+  { n:15, iso:"2026-11-30", date:"30/11", title:"Vencendo a comparação",
+    base:"Gálatas 6:4-5 · 1 Coríntios 12:14-20",
+    refs:[{l:"Gálatas 6",u:"https://www.bibliaonline.com.br/acf/gl/6"},{l:"1 Coríntios 12",u:"https://www.bibliaonline.com.br/acf/1co/12"}],
+    ideia:"Cada um tem uma função no corpo — comparar dom com dom trava o próprio chamado.",
+    keywords:["comparação","identidade","dons diferentes","propósito"],
+    esboco:[
+      {l:"Gancho", t:"já se sentiu \"menos\" perto de alguém que canta ou toca melhor?"},
+      {l:"Verdade", t:"Paulo diz que o corpo precisa de partes diferentes — não faz sentido o pé querer ser mão."},
+      {l:"Aplicação", t:"sua tarefa não é ser igual ao outro, é ser fiel com o que Deus te deu."}
+    ],
+    pergunta:"com quem você mais se compara na equipe?",
+    perguntaNote:"não precisa responder em voz alta, ainda mais porque envolve outra pessoa",
+    branches:[{l:"No fim das contas", t:"seja quem for, lembre — Deus não te deu o dom do outro porque não é o seu papel no corpo. Comparação rouba a alegria de fazer bem o que só você foi chamado a fazer."}]
+  },
+  { n:16, iso:"2026-12-07", date:"07/12", title:"Descanso em Deus em meio à correria do fim de ano",
+    base:"Mateus 11:28-30",
+    refs:[{l:"Mateus 11",u:"https://www.bibliaonline.com.br/acf/mt/11"}],
+    ideia:"Dezembro cansa o corpo e a alma — Jesus convida pro descanso, não pra mais carga.",
+    keywords:["descanso","cansaço","jugo suave","dependência"],
+    esboco:[
+      {l:"Gancho", t:"quem já está sentindo a correria de dezembro pesando?"},
+      {l:"Verdade", t:"Jesus não pede mais esforço, pede que a gente venha e descanse Nele."},
+      {l:"Aplicação", t:"servir cansado sem descansar em Deus gera ministério de obrigação, não de alegria."}
+    ],
+    pergunta:"o que você pode tirar da agenda essa semana pra descansar de verdade?",
+    perguntaNote:"não precisa responder em voz alta",
+    branches:[{l:"Sem exagero", t:"não precisa ser algo grande — Jesus não pediu que largássemos tudo, só que viéssemos a Ele quando o cansaço bater."}]
+  },
+  { n:17, iso:"2026-12-14", date:"14/12", title:"O verdadeiro sentido do Natal: adoração ao Rei",
+    base:"Lucas 2:8-14",
+    refs:[{l:"Lucas 2",u:"https://www.bibliaonline.com.br/acf/lc/2"}],
+    ideia:"Os pastores largaram tudo pra adorar — o Natal sempre foi sobre adoração, não sobre consumo.",
+    keywords:["Natal","adoração","simplicidade","Emanuel"],
+    esboco:[
+      {l:"Gancho", t:"o que vem primeiro na sua cabeça quando pensa em dezembro — presente ou presença de Deus?"},
+      {l:"Verdade", t:"os pastores, gente simples, foram os primeiros convidados a adorar o Rei recém-nascido."},
+      {l:"Aplicação", t:"que nosso louvor nesse mês aponte pra Ele, não vire só trilha sonora de festa."}
+    ],
+    pergunta:"o que ajudaria você a manter o foco em Jesus nesse dezembro corrido?",
+    perguntaNote:"não precisa responder em voz alta",
+    branches:[{l:"Guarda isso", t:"pode ser algo simples, como separar 5 minutos antes de dormir só pra agradecer — o importante é ter um ponto fixo no meio da correria."}]
+  },
+  { n:18, iso:"2026-12-21", date:"21/12", title:"Perseverança até o fim",
+    base:"Gálatas 6:9",
+    refs:[{l:"Gálatas 6",u:"https://www.bibliaonline.com.br/acf/gl/6"}],
+    ideia:"O ano cansa, mas a colheita vem pra quem não desiste antes da hora.",
+    keywords:["perseverança","cansaço","fidelidade até o fim"],
+    esboco:[
+      {l:"Gancho", t:"quem sente que o \"tanque\" tá baixo pra fechar o ano?"},
+      {l:"Verdade", t:"Paulo avisa que o cansaço em fazer o bem é real, mas a promessa é pra quem não desiste."},
+      {l:"Aplicação", t:"terminar bem o ano no ministério é tão importante quanto começar bem."}
+    ],
+    pergunta:"o que te ajudou a continuar firme esse ano, mesmo nos momentos difíceis?",
+    perguntaNote:"não precisa responder em voz alta, mas quem quiser pode compartilhar",
+    branches:[{l:"De coração pra coração", t:"guarde essa resposta — ela vai ser exatamente o que você vai precisar lembrar na próxima vez que o cansaço bater."}]
+  },
+  { n:19, iso:"2026-12-28", date:"28/12", title:"Renovação de propósito para 2027",
+    base:"Filipenses 3:13-14",
+    refs:[{l:"Filipenses 3",u:"https://www.bibliaonline.com.br/acf/fp/3"}],
+    ideia:"Esquecer o que ficou pra trás e prosseguir pro alvo — fechar um ciclo com os olhos no próximo.",
+    keywords:["propósito","renovação","alvo","recomeço"],
+    esboco:[
+      {l:"Gancho", t:"se esse ano fosse uma música, qual seria o refrão dele pra você?"},
+      {l:"Verdade", t:"Paulo não vive preso ao passado (erro ou vitória), ele prossegue pro alvo."},
+      {l:"Aplicação", t:"fechar 2026 entregando a Deus tanto as falhas quanto as conquistas do ministério."}
+    ],
+    pergunta:"com que propósito você quer entrar em 2027 nesse grupo de louvor?",
+    perguntaNote:"não precisa responder em voz alta",
+    branches:[{l:"Pra fechar o ano", t:"escreva essa resposta em algum lugar (nota do celular, agenda) — não como meta de ano novo qualquer, mas como um compromisso diante de Deus."}]
+  }
+];
+
+const STORAGE_KEY = "louvor2026-state";
+let state = {};
+let stateLoaded = false;
+
+function escapeHtml(str){
+  const d = document.createElement('div');
+  d.textContent = str || '';
+  return d.innerHTML;
+}
+
+function todayISO(){
+  const d = new Date();
+  d.setHours(0,0,0,0);
+  return d;
+}
+
+function classify(iso){
+  const target = new Date(iso + "T00:00:00");
+  target.setHours(0,0,0,0);
+  const today = todayISO();
+  if (target.getTime() === today.getTime()) return "today";
+  if (target.getTime() > today.getTime()) return "future";
+  return "past";
+}
+
+function findCurrentWeek(){
+  // week that is today, or the closest future one; if none future, the last past one
+  const today = todayISO();
+  let best = null;
+  for (const w of WEEKS){
+    const target = new Date(w.iso + "T00:00:00");
+    target.setHours(0,0,0,0);
+    if (target.getTime() >= today.getTime()){
+      if (!best || target.getTime() < new Date(best.iso+"T00:00:00").getTime()) best = w;
+    }
+  }
+  if (!best) best = WEEKS[WEEKS.length - 1];
+  return best.n;
+}
+
+function renderEsboco(items){
+  return items.map(it => `<div class="esboco-item"><b>${escapeHtml(it.l)}:</b> ${escapeHtml(it.t)}</div>`).join('');
+}
+
+function renderBranches(branches){
+  return branches.map(b => `<div class="branch"><b>${escapeHtml(b.l)}:</b> ${escapeHtml(b.t)}</div>`).join('');
+}
+
+function cardTemplate(w, currentN){
+  const st = state[w.n] || { done:false, registro:"" };
+  const isCurrent = w.n === currentN;
+  const cls = ["card"];
+  if (st.done) cls.push("is-done");
+  else if (isCurrent) cls.push("is-current");
+
+  const tagHtml = st.done
+    ? `<span class="tag done">concluída</span>`
+    : (isCurrent ? `<span class="tag">${classify(w.iso)==="today" ? "hoje" : "próxima"}</span>` : "");
+
+  return `
+  <div class="${cls.join(' ')}" data-week="${w.n}">
+    <button class="card-head" type="button" aria-expanded="false" data-toggle="${w.n}">
+      <span class="num">${String(w.n).padStart(2,'0')}</span>
+      <span class="head-text">
+        <span class="date-row"><span class="date">${w.date}/2026</span>${tagHtml}</span>
+        <span class="title">${escapeHtml(w.title)}</span>
+      </span>
+      <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+    </button>
+    <div class="card-body">
+      <div class="card-body-inner">
+        <div class="content">
+
+          <div class="block">
+            <p class="label">Ideia central</p>
+            <p class="idea">${escapeHtml(w.ideia)}</p>
+          </div>
+
+          <div class="block">
+            <p class="label">Palavras-chave</p>
+            <div class="keywords">${w.keywords.map(k=>`<span class="chip">${escapeHtml(k)}</span>`).join('')}</div>
+          </div>
+
+          <div class="block">
+            <p class="label">Esboço</p>
+            ${renderEsboco(w.esboco)}
+          </div>
+
+          ${w.bonus ? `<div class="block"><p class="label">Bônus</p><p class="bonus">${escapeHtml(w.bonus)}</p></div>` : ''}
+
+          <div class="block">
+            <p class="label">Pergunta</p>
+            <div class="pergunta-box">
+              <p class="pergunta-txt">"${escapeHtml(w.pergunta)}"</p>
+              <p class="pergunta-note">(${escapeHtml(w.perguntaNote)})</p>
+              ${renderBranches(w.branches)}
+            </div>
+          </div>
+
+          <div class="block">
+            <button class="verse-toggle" type="button" data-verse="${w.n}" aria-expanded="false">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+              Ver base bíblica
+            </button>
+            <div class="verse-panel" id="verse-${w.n}">
+              <p class="verse-ref">${escapeHtml(w.base)}</p>
+              <div class="verse-links">${(w.refs||[]).map(r=>`<a class="verse-link" href="${r.u}" target="_blank" rel="noopener">Abrir ${escapeHtml(r.l)} no Bíblia Online ↗</a>`).join('')}</div>
+              <p class="verse-note">${escapeHtml(w.ideia)}</p>
+              <p class="verse-disclaimer">Resumo da passagem, não o texto literal — direitos autorais variam por tradução.</p>
+              <textarea class="registro verse-text" data-verse-text="${w.n}" placeholder="Cole aqui o texto do versículo, da tradução que preferir">${escapeHtml(st.versiculo || '')}</textarea>
+            </div>
+          </div>
+
+          <div class="block registro-wrap">
+            <p class="label">Registro</p>
+            <textarea class="registro" data-registro="${w.n}" placeholder="Como foi a conversa? Surgiu algum pedido de oração ou comentário pra retomar depois?">${escapeHtml(st.registro)}</textarea>
+            <div class="done-row">
+              <label>
+                <input type="checkbox" data-done="${w.n}" ${st.done ? 'checked' : ''}>
+                Já apresentei essa semana
+              </label>
+              <span class="save-hint" data-hint="${w.n}">salvo</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+async function loadState(){
+  try{
+    const res = await window.storage.get(STORAGE_KEY, false);
+    state = res && res.value ? JSON.parse(res.value) : {};
+  } catch(e){
+    state = {};
+  }
+  stateLoaded = true;
+}
+
+async function saveState(){
+  try{
+    await window.storage.set(STORAGE_KEY, JSON.stringify(state), false);
+  } catch(e){
+    console.error('Erro ao salvar', e);
+  }
+}
+
+function updateProgress(){
+  const total = WEEKS.length;
+  const done = WEEKS.filter(w => state[w.n] && state[w.n].done).length;
+  document.getElementById('progressFill').style.width = (done/total*100) + '%';
+  document.getElementById('progressLabel').textContent = `${done}/${total}`;
+}
+
+function showHint(n){
+  const el = document.querySelector(`[data-hint="${n}"]`);
+  if (!el) return;
+  el.classList.add('show');
+  clearTimeout(el._t);
+  el._t = setTimeout(()=> el.classList.remove('show'), 1200);
+}
+
+function attachEvents(){
+  document.querySelectorAll('[data-toggle]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const card = btn.closest('.card');
+      const isOpen = card.classList.toggle('open');
+      btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    });
+  });
+
+  document.querySelectorAll('[data-verse]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const n = btn.getAttribute('data-verse');
+      const panel = document.getElementById('verse-' + n);
+      const showing = panel.classList.toggle('show');
+      btn.setAttribute('aria-expanded', showing ? 'true' : 'false');
+      btn.lastChild.textContent = showing ? ' Ocultar base bíblica' : ' Ver base bíblica';
+    });
+  });
+
+  document.querySelectorAll('[data-registro]').forEach(ta => {
+    ta.addEventListener('click', e => e.stopPropagation());
+    let timer;
+    ta.addEventListener('input', () => {
+      const n = ta.getAttribute('data-registro');
+      if (!state[n]) state[n] = { done:false, registro:'' };
+      state[n].registro = ta.value;
+      clearTimeout(timer);
+      timer = setTimeout(async () => {
+        await saveState();
+        showHint(n);
+      }, 600);
+    });
+  });
+
+  document.querySelectorAll('[data-verse-text]').forEach(ta => {
+    ta.addEventListener('click', e => e.stopPropagation());
+    let timer;
+    ta.addEventListener('input', () => {
+      const n = ta.getAttribute('data-verse-text');
+      if (!state[n]) state[n] = { done:false, registro:'', versiculo:'' };
+      state[n].versiculo = ta.value;
+      clearTimeout(timer);
+      timer = setTimeout(async () => {
+        await saveState();
+        showHint(n);
+      }, 600);
+    });
+  });
+
+  document.querySelectorAll('[data-done]').forEach(cb => {
+    cb.addEventListener('click', e => e.stopPropagation());
+    cb.addEventListener('change', async () => {
+      const n = cb.getAttribute('data-done');
+      if (!state[n]) state[n] = { done:false, registro:'', versiculo:'' };
+      state[n].done = cb.checked;
+      const card = document.querySelector(`.card[data-week="${n}"]`);
+      card.classList.toggle('is-done', cb.checked);
+      const tagSlot = card.querySelector('.tag');
+      await saveState();
+      updateProgress();
+      showHint(n);
+    });
+  });
+
+  document.getElementById('expandAllBtn').addEventListener('click', () => {
+    document.querySelectorAll('.card').forEach(c => {
+      c.classList.add('open');
+      c.querySelector('[data-toggle]').setAttribute('aria-expanded','true');
+    });
+  });
+  document.getElementById('collapseAllBtn').addEventListener('click', () => {
+    document.querySelectorAll('.card').forEach(c => {
+      c.classList.remove('open');
+      c.querySelector('[data-toggle]').setAttribute('aria-expanded','false');
+    });
+  });
+
+  document.getElementById('resetBtn').addEventListener('click', async () => {
+    if (!confirm('Isso vai apagar todos os registros e marcações salvas. Confirmar?')) return;
+    state = {};
+    await saveState();
+    render();
+  });
+}
+
+function render(){
+  const container = document.getElementById('weeksContainer');
+  const currentN = findCurrentWeek();
+  container.innerHTML = WEEKS.map(w => cardTemplate(w, currentN)).join('');
+  attachEvents();
+  updateProgress();
+
+  // auto-open the current/next week
+  const currentCard = document.querySelector(`.card[data-week="${currentN}"]`);
+  if (currentCard){
+    currentCard.classList.add('open');
+    currentCard.querySelector('[data-toggle]').setAttribute('aria-expanded','true');
+    setTimeout(() => currentCard.scrollIntoView({behavior:'smooth', block:'center'}), 300);
+  }
+}
+
+(async function init(){
+  await loadState();
+  render();
+})();
+</script>
+</body>
+</html>
